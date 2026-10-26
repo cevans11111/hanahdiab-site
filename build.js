@@ -134,7 +134,6 @@ ${nav}
 No content from this site<br>
 may be reproduced without<br>
 consent from Hanah Diab.
-<div class="break5 mini">Website by <a href="http://www.andrewtibbetts.com/" target="_blank" rel="noopener" class="green">Andrew Tibbetts</a></div>
 </div>
 <img class="hanger" src="${root}images/navhanger.gif" alt="">
 </div>
