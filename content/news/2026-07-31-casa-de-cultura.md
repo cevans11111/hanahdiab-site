@@ -15,4 +15,4 @@ Opening Reception: October 2, 6-9 PM Closing Reception: October 25, 4-7 PM
 
 2057 W 18th St., Chicago, IL 60608   [/b]
 [link:https://granitepalombo.com/displacement]Show website[/link]
-[image:images/Displacement -flyer small.jpg]
+[image:public/images/Displacement_flyer_small.jpg]
