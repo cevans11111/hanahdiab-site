@@ -1,6 +1,18 @@
 ---
-title: "Casa de Cultura"
+title: Casa de Cultura
 date: 2026-07-31T23:34:50
 legacy_id: 16
 ---
-[b] Updates coming soon on a new show September 2026, Displacement. [/b]
+
+[b] 
+Displacement
+
+September 30- October 28
+
+Opening Reception: October 2, 6-9 PM Closing Reception: October 25, 4-7 PM
+
+18th St. Casa de Cultura
+
+2057 W 18th St., Chicago, IL 60608   [/b]
+[link:https://granitepalombo.com/displacement]Show website[/link]
+[image:images/Displacement -flyer small.jpg]
