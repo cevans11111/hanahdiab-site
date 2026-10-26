@@ -68,6 +68,12 @@ function loadDir(dir) {
 
 const imgPath = (v) => "images/" + String(v || "").replace(/^\/?(public\/)?(images\/)?/, "");
 
+// sharp (image resizing) is optional: without it, pictures are copied as uploaded.
+let sharp = null;
+try { sharp = require("sharp"); } catch (e) { console.warn("  sharp is not installed: pictures are published at their original size"); }
+const THUMB_DIR = "images/thumbs/";
+const thumbJobs = [];   // artworks with no thumbnail of their own get a small square one made from the large image
+
 const news = loadDir("news")
   .map((n) => ({ ...n, title: String(n.title || "").trim() }))
   .sort((a, b) => sortKey(b.date) - sortKey(a.date));
@@ -80,6 +86,9 @@ const SECTIONS = {
 const artwork = loadDir("artwork")
   .filter((a) => a.published !== false && SECTIONS[a.type])
   .sort((a, b) => (Number(b.position) || 0) - (Number(a.position) || 0) || (Number(a.legacy_id) || 0) - (Number(b.legacy_id) || 0));
+
+const thumbSrc = (a) => (a.thumb ? imgPath(a.thumb) : sharp ? THUMB_DIR + a.slug + ".jpg" : imgPath(a.image));
+for (const a of artwork) if (!a.thumb && sharp) thumbJobs.push({ from: imgPath(a.image), to: THUMB_DIR + a.slug + ".jpg" });
 
 const pages = {};
 for (const p of loadDir("pages")) pages[p.slug] = p;
@@ -134,6 +143,7 @@ ${nav}
 No content from this site<br>
 may be reproduced without<br>
 consent from Hanah Diab.
+<div class="break5 mini">Original design by Andrew Tibbetts</div>
 </div>
 <img class="hanger" src="${root}images/navhanger.gif" alt="">
 </div>
@@ -203,7 +213,7 @@ for (const n of news) {
 function thumbRow(items, sec, depth, selectedSlug) {
   const link = L(depth);
   return `<div class="thumbs">` + items.map((a) =>
-    `<div class="thumb${a.slug === selectedSlug ? " on" : ""}"><a href="${link(sec.dir + "/" + a.slug + "/")}"><img src="${rootFor(depth)}${imgPath(a.thumb || a.image)}" loading="lazy" width="40" height="40" alt="${h(a.title)}" title="${h(a.title)}"></a></div>`
+    `<div class="thumb${a.slug === selectedSlug ? " on" : ""}"><a href="${link(sec.dir + "/" + a.slug + "/")}"><img src="${rootFor(depth)}${thumbSrc(a)}" loading="lazy" width="40" height="40" alt="${h(a.title)}" title="${h(a.title)}"></a></div>`
   ).join("") + `</div>`;
 }
 
@@ -305,7 +315,39 @@ if (NOINDEX && !PREVIEW) {
 // warn about images the content points at that are not in public/images
 const missing = new Set();
 for (const a of artwork) for (const f of [a.image, a.thumb].filter(Boolean)) if (!fs.existsSync(path.join(ROOT, "public", imgPath(f)))) missing.add(imgPath(f));
-for (const n of news) for (const m of n.body.matchAll(/\[image[a-z]*:([^\]]+)\]/g)) if (!fs.existsSync(path.join(ROOT, "public", m[1].trim()))) missing.add(m[1].trim() + "  (in news: " + n.slug + ")");
+for (const n of news) for (const m of n.body.matchAll(/\[image[a-z]*:([^\]]+)\]/g)) if (!fs.existsSync(path.join(ROOT, "public", m[1].trim().replace(/^(\.\/)?public\//, "")))) missing.add(m[1].trim().replace(/^(\.\/)?public\//, "") + "  (in news: " + n.slug + ")");
+async function optimizeImages() {
+  if (!sharp) return;
+  const MAX_W = 1200, BIG = 600 * 1024;
+  let shrunk = 0, saved = 0;
+  const dir = path.join(OUT, "images");
+  for (const f of fs.readdirSync(dir)) {
+    if (!/\.(jpe?g|png)$/i.test(f)) continue;
+    const file = path.join(dir, f), before = fs.statSync(file).size;
+    const meta = await sharp(file).metadata();
+    const isThumb = artwork.some((a) => a.thumb && imgPath(a.thumb) === "images/" + f);
+    const tooBig = isThumb ? meta.width > 240 || before > 80 * 1024 : meta.width > MAX_W || before > BIG;
+    if (!tooBig) continue;
+    // .rotate() applies the phone's orientation and drops hidden metadata such as GPS location
+    const img = sharp(file).rotate();
+    const out = isThumb
+      ? await img.resize(120, 120, { fit: "cover" }).jpeg({ quality: 80, mozjpeg: true }).toBuffer()
+      : /\.png$/i.test(f)
+        ? await img.resize({ width: MAX_W, withoutEnlargement: true }).png({ compressionLevel: 9 }).toBuffer()
+        : await img.resize({ width: MAX_W, withoutEnlargement: true }).jpeg({ quality: 82, mozjpeg: true }).toBuffer();
+    if (out.length < before) { fs.writeFileSync(file, out); shrunk++; saved += before - out.length; }
+  }
+  fs.mkdirSync(path.join(OUT, THUMB_DIR), { recursive: true });
+  for (const j of thumbJobs) {
+    const src = path.join(ROOT, "public", j.from);
+    if (!fs.existsSync(src)) continue;
+    await sharp(src).rotate().resize(120, 120, { fit: "cover" }).jpeg({ quality: 80, mozjpeg: true }).toFile(path.join(OUT, j.to));
+  }
+  console.log(`  Pictures: ${shrunk} resized (saved ${(saved / 1048576).toFixed(1)} MB), ${thumbJobs.length} thumbnails made`);
+}
+
 console.log(`Built ${written.length} pages -> ${path.relative(process.cwd(), OUT) || "."}${PREVIEW ? " (preview mode)" : ""}`);
 console.log(`  ${news.length} news posts, ${artwork.length} artworks`);
 if (missing.size) console.warn("  Missing image files:\n   - " + [...missing].join("\n   - "));
+
+optimizeImages().catch((e) => { console.error("Picture optimizing failed:", e.message); process.exitCode = 1; });

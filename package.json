@@ -2,9 +2,14 @@
   "name": "hanahdiab-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Static site for hanahdiab.com (no dependencies; plain Node)",
+  "description": "Static site for hanahdiab.com (sharp is optional: it only resizes pictures)",
   "scripts": {
     "build": "node build.js"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "sharp": "^0.34.2"
+  }
 }
