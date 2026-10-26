@@ -20,6 +20,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Install the picture-resizing tool
+        run: npm install --omit=dev --no-audit --no-fund
       - name: Point the editor at this repository
         run: sed -i "s#OWNER/hanahdiab-site#${GITHUB_REPOSITORY}#" public/admin/config.yml
       - name: Build (test copy, hidden from search engines)

@@ -26,7 +26,7 @@ npx serve dist           # or: python3 -m http.server --directory dist
 
 1. **GitHub:** create a *private* repository (for example `hanahdiab-site`) and push this folder to it.
 2. **Cloudflare Pages:** Workers & Pages → Create → Pages → connect the repository.
-   Build command `node build.js`, output directory `dist`. Every save in the editor now rebuilds the site (about a minute).
+   Build command `npm install && node build.js`, output directory `dist`. Every save in the editor now rebuilds the site (about a minute).
 3. **Editor address:** open `public/admin/config.yml` and set `repo:` to your GitHub `owner/name`.
 4. **Contact form:** create a free form at formspree.io that sends to the address that should receive messages,
    then put its URL in `site.config.json` as `contactEndpoint`. (Until then the form shows "not connected yet".)
