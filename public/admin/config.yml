@@ -1,0 +1,113 @@
+# Editor settings for hanahdiab.com/admin (Sveltia CMS).
+# Before first use: change `repo` below to the real GitHub "owner/name" (see README.md).
+
+backend:
+  name: github
+  repo: OWNER/hanahdiab-site   # <-- replace with the GitHub repository that holds this site
+  branch: main
+
+site_url: https://hanahdiab.com
+display_url: https://hanahdiab.com
+publish_mode: simple
+locale: en
+
+# Pictures uploaded in the editor are saved to public/images and used on the site as /images/...
+media_folder: public/images
+public_folder: /images
+
+collections:
+  # ---------------------------------------------------------------- News
+  - name: news
+    label: News
+    label_singular: News post
+    folder: content/news
+    extension: md
+    format: frontmatter
+    create: true
+    delete: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    identifier_field: title
+    summary: "{{date}} - {{title}}"
+    sortable_fields: [date, title]
+    sort: date:desc
+    fields:
+      - { name: title, label: Title, widget: string }
+      - name: date
+        label: Date and time
+        widget: datetime
+        format: "YYYY-MM-DDTHH:mm:ss"
+        date_format: "MMMM D, YYYY"
+        time_format: "h:mm a"
+        picker_utc: false
+        hint: Shown at the top of the post. The newest 5 posts appear on the News page; older ones go to the archive.
+      - name: body
+        label: Text
+        widget: text
+        hint: "Formatting: [b]bold[/b]  [i]italic[/i]  [u]underline[/u]  [link:https://example.com]link text[/link]  [color:CC0000]colored[/color]  [image:images/photo.jpg] (upload the picture first, see Media)."
+      - { name: legacy_id, label: Old site ID, widget: hidden, required: false }
+
+  # ---------------------------------------------------------------- Artwork
+  - name: artwork
+    label: Artwork
+    label_singular: Artwork
+    folder: content/artwork
+    extension: md
+    format: frontmatter
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    identifier_field: title
+    summary: "{{title}} ({{type}}, {{year}})"
+    sortable_fields: [title, type, year, position]
+    fields:
+      - { name: title, label: Title, widget: string }
+      - name: type
+        label: Gallery
+        widget: select
+        options:
+          - { label: Painting, value: painting }
+          - { label: Drawing, value: drawing }
+          - { label: Sculpture, value: sculpture }
+      - { name: year, label: Year, widget: number, value_type: int, required: false }
+      - name: position
+        label: Order
+        widget: number
+        value_type: int
+        default: 0
+        hint: Higher numbers are shown first in the gallery.
+      - { name: published, label: Show on the site, widget: boolean, default: true }
+      - name: image
+        label: Large image
+        widget: image
+        hint: The picture shown on the artwork's page. About 640 pixels wide works well.
+      - name: thumb
+        label: Thumbnail (optional)
+        widget: image
+        required: false
+        hint: A small square picture for the gallery strip. If left empty, the large image is shrunk to fit.
+      - name: body
+        label: Caption
+        widget: text
+        required: false
+        hint: "Size, materials, SOLD, etc. Same formatting as News."
+      - { name: legacy_id, label: Old site ID, widget: hidden, required: false }
+
+  # ---------------------------------------------------------------- Single pages
+  - name: pages
+    label: Resume and Statement
+    files:
+      - name: resume
+        label: Resume
+        file: content/pages/resume.md
+        format: frontmatter
+        fields:
+          - { name: title, label: Title, widget: hidden, default: Resume }
+          - { name: body, label: Text, widget: text }
+      - name: statement
+        label: Artist Statement
+        file: content/pages/statement.md
+        format: frontmatter
+        fields:
+          - { name: title, label: Title, widget: hidden, default: Statement }
+          - { name: updated, label: Last updated, widget: datetime, format: "YYYY-MM-DD", time_format: false, required: false }
+          - { name: body, label: Text, widget: text }

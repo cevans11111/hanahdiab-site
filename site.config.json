@@ -1,0 +1,5 @@
+{
+  "siteUrl": "https://hanahdiab.com",
+  "contactEndpoint": "",
+  "contactNote": "Set contactEndpoint to your form service URL (see README) so the Contact form sends email."
+}

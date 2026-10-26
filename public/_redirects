@@ -1,0 +1,18 @@
+# Old PHP addresses -> new pages (keeps old links and Google results working).
+# /artwork.php and /news-detail.php are handled by functions/ because they need the ?id= part.
+/index.php          /                 301
+/news.php           /news/            301
+/news-archive.php   /news/archive/    301
+/resume.php         /resume/          301
+/statement.php      /statement/       301
+/contact.php        /contact/         301
+
+# The old PHP admin pages now lead to the new editor
+/admin.php          /admin/           301
+/admin/index.php    /admin/           301
+/news-admin.php     /admin/           301
+/artwork-admin.php  /admin/           301
+/resume-admin.php   /admin/           301
+/statement-admin.php /admin/          301
+/images-admin.php   /admin/           301
+/contact-admin.php  /admin/           301
